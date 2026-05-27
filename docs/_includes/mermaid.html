@@ -1,0 +1,34 @@
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'default',
+    securityLevel: 'loose'
+  });
+
+  // Jekyll/Kramdown wraps mermaid code blocks in <code> inside <pre>,
+  // which mermaid doesn't process. This script unwraps them so mermaid can render.
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code.language-mermaid').forEach(function (codeEl) {
+      var pre = codeEl.parentElement;
+      var container = document.createElement('div');
+      container.classList.add('mermaid');
+      container.textContent = codeEl.textContent;
+      pre.parentElement.replaceChild(container, pre);
+    });
+
+    // Also handle ```mermaid blocks that kramdown renders as <div class="language-mermaid highlighter-rouge">
+    document.querySelectorAll('div.language-mermaid').forEach(function (div) {
+      var codeEl = div.querySelector('code');
+      if (codeEl) {
+        var container = document.createElement('div');
+        container.classList.add('mermaid');
+        container.textContent = codeEl.textContent;
+        div.parentElement.replaceChild(container, div);
+      }
+    });
+
+    // Re-run mermaid after DOM changes
+    mermaid.run();
+  });
+</script>
