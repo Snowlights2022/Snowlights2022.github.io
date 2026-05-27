@@ -1,15 +1,19 @@
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <script>
+  // Disable startOnLoad — we handle initialization manually after unwrapping Kramdown code blocks
   mermaid.initialize({
-    startOnLoad: true,
+    startOnLoad: false,
     theme: 'default',
     securityLevel: 'loose'
   });
 
-  // Jekyll/Kramdown wraps mermaid code blocks in <code> inside <pre>,
-  // which mermaid doesn't process. This script unwraps them so mermaid can render.
-  document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('pre code.language-mermaid').forEach(function (codeEl) {
+  // Jekyll/Kramdown renders ```mermaid as <pre><code class="language-mermaid">...</code></pre>
+  // or <div class="language-mermaid highlighter-rouge"><div class="highlight"><pre><code>...</code></pre></div></div>
+  // mermaid.js needs <div class="mermaid"> blocks, so we unwrap them before rendering.
+
+  function unwrapMermaidBlocks() {
+    // Handle <pre><code class="language-mermaid">...</code></pre>
+    document.querySelectorAll('pre > code.language-mermaid').forEach(function (codeEl) {
       var pre = codeEl.parentElement;
       var container = document.createElement('div');
       container.classList.add('mermaid');
@@ -17,7 +21,7 @@
       pre.parentElement.replaceChild(container, pre);
     });
 
-    // Also handle ```mermaid blocks that kramdown renders as <div class="language-mermaid highlighter-rouge">
+    // Handle Kramdown's <div class="language-mermaid highlighter-rouge"> wrapper
     document.querySelectorAll('div.language-mermaid').forEach(function (div) {
       var codeEl = div.querySelector('code');
       if (codeEl) {
@@ -27,8 +31,14 @@
         div.parentElement.replaceChild(container, div);
       }
     });
+  }
 
-    // Re-run mermaid after DOM changes
+  unwrapMermaidBlocks();
+
+  // Use mermaid.run() if available (v10+), otherwise mermaid.init() (v9)
+  if (typeof mermaid.run === 'function') {
     mermaid.run();
-  });
+  } else if (typeof mermaid.init === 'function') {
+    mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+  }
 </script>
