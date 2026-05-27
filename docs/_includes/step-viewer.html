@@ -1,0 +1,64 @@
+<!-- Step Viewer Styles -->
+<style>
+.step-viewer-container {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  margin: 1em auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f8f8f8;
+}
+.step-viewer-container .step-canvas-wrapper {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  position: relative;
+}
+.step-viewer-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+.step-viewer-container .step-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.1em;
+  color: #666;
+}
+.step-viewer-container .step-controls {
+  padding: 8px 12px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  background: #fff;
+  border-top: 1px solid #e0e0e0;
+  font-size: 0.85em;
+}
+.step-viewer-container .step-controls button {
+  padding: 4px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.9em;
+}
+.step-viewer-container .step-controls button:hover {
+  background: #eee;
+}
+.step-viewer-container .step-controls .step-info {
+  margin-left: auto;
+  color: #888;
+}
+</style>
+
+<!-- Three.js + OCCT Import JS -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.170.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/occt-import-js@0.0.12/dist/occt-import-js.js"></script>
+
+<!-- Step Viewer Script -->
+<script src="{{ '/assets/js/step-viewer.js' | relative_url }}"></script>

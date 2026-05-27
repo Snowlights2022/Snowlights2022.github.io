@@ -1,0 +1,129 @@
+---
+layout: post
+title:  "Markdown数学公式与STEP 3D模型渲染演示"
+date:   2026-05-28 12:00:00 +0800
+categories: jekyll update
+---
+
+# Markdown 数学公式与 STEP 3D 模型渲染演示
+
+本文演示了博客对 **LaTeX 数学公式** 和 **STEP 3D 模型** 的渲染支持。
+
+---
+
+## 一、数学公式渲染
+
+本站使用 [KaTeX](https://katex.org/) 进行数学公式渲染，支持行内公式和独立公式块。
+
+### 1.1 行内公式
+
+欧拉公式 $e^{i\pi} + 1 = 0$ 是数学中最优美的等式之一。
+
+电阻分压公式 $V_{out} = V_{in} \cdot \frac{R_2}{R_1 + R_2}$ 在电路分析中非常常用。
+
+### 1.2 独立公式块
+
+麦克斯韦方程组：
+
+$$
+\nabla \cdot \mathbf{E} = \frac{\rho}{\varepsilon_0}
+$$
+
+$$
+\nabla \cdot \mathbf{B} = 0
+$$
+
+$$
+\nabla \times \mathbf{E} = -\frac{\partial \mathbf{B}}{\partial t}
+$$
+
+$$
+\nabla \times \mathbf{B} = \mu_0 \mathbf{J} + \mu_0 \varepsilon_0 \frac{\partial \mathbf{E}}{\partial t}
+$$
+
+### 1.3 更复杂的公式
+
+薛定谔方程：
+
+$$
+i\hbar\frac{\partial}{\partial t}\Psi(\mathbf{r},t) = \left[-\frac{\hbar^2}{2m}\nabla^2 + V(\mathbf{r},t)\right]\Psi(\mathbf{r},t)
+$$
+
+傅里叶变换：
+
+$$
+\hat{f}(\xi) = \int_{-\infty}^{\infty} f(x)\, e^{-2\pi i x \xi} \, dx
+$$
+
+矩阵运算：
+
+$$
+\begin{pmatrix} a & b \\ c & d \end{pmatrix} \begin{pmatrix} x \\ y \end{pmatrix} = \begin{pmatrix} ax + by \\ cx + dy \end{pmatrix}
+$$
+
+---
+
+## 二、STEP 3D 模型渲染
+
+本站支持嵌入 `.step` / `.stp` 格式的 3D CAD 模型，使用 [Three.js](https://threejs.org/) + [occt-import-js](https://github.com/nicolo-ribaudo/occt-import-js) 进行渲染。
+
+### 2.1 基本用法
+
+在 Markdown 中使用以下 HTML 代码嵌入 STEP 模型：
+
+```html
+<div class="step-viewer-container"
+     data-src="/assets/models/example.step">
+  <div class="step-canvas-wrapper">
+    <div class="step-loading">Loading...</div>
+  </div>
+  <div class="step-controls">
+    <button class="step-btn-reset">🔄 Reset View</button>
+    <button class="step-btn-autorotate">🔄 Auto Rotate</button>
+    <button class="step-btn-wireframe">🔲 Wireframe</button>
+    <span class="step-info"></span>
+  </div>
+</div>
+```
+
+### 2.2 交互操作
+
+- **旋转**：鼠标左键拖动
+- **缩放**：鼠标滚轮
+- **平移**：鼠标右键拖动
+- **自动旋转**：点击 "Auto Rotate" 按钮
+- **线框模式**：点击 "Wireframe" 按钮
+- **重置视角**：点击 "Reset View" 按钮
+
+### 2.3 示例模型
+
+> **注意**：以下示例需要将 `.step` 文件放置在 `assets/models/` 目录下。
+> 由于示例文件较大，此处仅展示嵌入代码模板。请将您的 STEP 文件放入项目后替换 `data-src` 路径。
+
+<div class="step-viewer-container"
+     data-src="/assets/models/example.step">
+  <div class="step-canvas-wrapper">
+    <div class="step-loading">Loading 3D model...</div>
+  </div>
+  <div class="step-controls">
+    <button class="step-btn-reset">🔄 Reset View</button>
+    <button class="step-btn-autorotate">🔄 Auto Rotate</button>
+    <button class="step-btn-wireframe">🔲 Wireframe</button>
+    <span class="step-info"></span>
+  </div>
+</div>
+
+---
+
+## 三、技术说明
+
+### 数学公式
+- 使用 **KaTeX** 进行客户端渲染，比 MathJax 更快
+- 支持 `$...$`（行内）和 `$$...$$`（独立块）语法
+- 同时兼容 `\(...\)` 和 `\[...\]` 语法
+
+### STEP 模型
+- 使用 **occt-import-js**（OpenCASCADE 的 WebAssembly 编译版）解析 STEP 文件
+- 使用 **Three.js** 进行 3D 渲染
+- 支持 **OrbitControls** 交互（拖动旋转、滚轮缩放、右键平移）
+- 支持自动旋转、线框模式、视角重置
