@@ -6,23 +6,68 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
+const OCCT_CDN_BASE = 'https://cdn.jsdelivr.net/npm/occt-import-js/dist/';
+
 // Global OCCT instance (loaded once)
 let occtInstance = null;
+let occtLoading = false;
 
-async function getOcct() {
-  if (occtInstance) return occtInstance;
-  if (typeof window.occtimportjs !== 'function') {
-    throw new Error('occt-import-js library not loaded. Please check that the script is included.');
-  }
-  occtInstance = await window.occtimportjs();
-  return occtInstance;
+/** Promise wrapper with timeout */
+function withTimeout(promise, ms, label) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timed out after ${ms / 1000}s`)), ms)
+    ),
+  ]);
 }
 
-async function loadStepFile(url) {
-  const occt = await getOcct();
+/**
+ * Load and initialize occt-import-js WASM module.
+ * Passes locateFile so the WASM is fetched from the CDN explicitly.
+ */
+async function getOcct(onProgress) {
+  if (occtInstance) return occtInstance;
+
+  if (typeof window.occtimportjs !== 'function') {
+    throw new Error('occt-import-js library not loaded. Check that the <script> tag is present.');
+  }
+
+  if (occtLoading) {
+    // Another viewer is already loading – poll until ready
+    for (let i = 0; i < 120; i++) {
+      await new Promise(r => setTimeout(r, 500));
+      if (occtInstance) return occtInstance;
+    }
+    throw new Error('occt-import-js initialisation did not complete in time.');
+  }
+
+  occtLoading = true;
+  onProgress?.('Loading OCCT WASM kernel (~7 MB)...');
+
+  try {
+    const module = await withTimeout(
+      window.occtimportjs({
+        locateFile: (file) => OCCT_CDN_BASE + file,
+      }),
+      60000,                       // 60-second hard timeout
+      'OCCT WASM load'
+    );
+    occtInstance = module;
+    return occtInstance;
+  } finally {
+    occtLoading = false;
+  }
+}
+
+async function loadStepFile(url, onProgress) {
+  onProgress?.('Downloading STEP file...');
+  const occt = await getOcct(onProgress);
   const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP ${response.status} fetching ${url}`);
   const buffer = await response.arrayBuffer();
   const fileBuffer = new Uint8Array(buffer);
+  onProgress?.(`Parsing STEP file (${(fileBuffer.byteLength / 1048576).toFixed(1)} MB)...`);
   return occt.ReadStepFile(fileBuffer, null);
 }
 
@@ -144,8 +189,8 @@ async function initStepViewer(container) {
   resizeObserver.observe(canvasWrapper);
 
   try {
-    loadingEl.textContent = 'Loading 3D model...';
-    const result = await loadStepFile(src);
+    loadingEl.textContent = 'Initializing...';
+    const result = await loadStepFile(src, (msg) => { loadingEl.textContent = msg; });
     const modelGroup = createMeshFromResult(result);
     centerAndScale(modelGroup);
     scene.add(modelGroup);
