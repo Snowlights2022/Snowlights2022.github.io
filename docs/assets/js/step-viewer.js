@@ -11,7 +11,10 @@ let occtInstance = null;
 
 async function getOcct() {
   if (occtInstance) return occtInstance;
-  occtInstance = await OcctImportJs();
+  if (typeof window.occtimportjs !== 'function') {
+    throw new Error('occt-import-js library not loaded. Please check that the script is included.');
+  }
+  occtInstance = await window.occtimportjs();
   return occtInstance;
 }
 
